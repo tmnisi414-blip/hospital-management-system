@@ -1,0 +1,172 @@
+<?php
+require_once __DIR__ . '/../php/config.php';
+
+// If already logged in, redirect to correct dashboard
+if (isLoggedIn()) {
+    $redirect = match($_SESSION['role']) {
+        'admin'  => 'admin.html',
+        'doctor' => 'doctor.html',
+        default  => 'patient.html',
+    };
+    header('Location: ' . $redirect);
+    exit;
+}
+
+$csrf  = generateCsrfToken();
+$flash = $_SESSION['flash'] ?? null;
+unset($_SESSION['flash']);
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login – HospitalMS</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-box">
+
+    <div class="auth-header">
+      <div style="font-size:2.5rem; margin-bottom:.5rem;"><i class="ti ti-heart-rate-monitor"></i></div>
+      <h1>HospitalMS</h1>
+      <p>Appointment &amp; Patient Management</p>
+    </div>
+
+    <?php if ($flash): ?>
+    <div style="margin: 1rem 1rem 0;">
+      <div class="alert alert-<?= $flash['type'] === 'error' ? 'error' : 'success' ?>">
+        <?= htmlspecialchars($flash['msg']) ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="auth-body">
+      <div class="auth-tabs">
+        <div class="auth-tab active" data-tab="login">Sign In</div>
+        <div class="auth-tab" data-tab="register">Register</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" class="auth-form active"
+            action="../php/auth.php?action=login" method="POST"
+            novalidate>
+        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email address</label>
+          <input type="email" id="login-email" name="email"
+                 class="form-control" placeholder="you@example.com"
+                 required autocomplete="email">
+          <div class="form-error" id="err-login-email">Enter a valid email.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-pass">Password</label>
+          <div style="position:relative">
+            <input type="password" id="login-pass" name="password"
+                   class="form-control" placeholder="••••••••"
+                   required autocomplete="current-password">
+            <button type="button" id="toggle-pass"
+                    style="position:absolute;right:.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+              <i class="ti ti-eye"></i>
+            </button>
+          </div>
+          <div class="form-error" id="err-login-pass">Password is required.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-2">
+          <i class="ti ti-login"></i> Sign In
+        </button>
+
+        <p class="text-center mt-2" style="font-size:.8rem;">
+          Demo — Admin: <code>admin@hospital.com</code><br>
+          Doctor: <code>sarah.dlamini@hospital.com</code><br>
+          Patient: <code>thabo@email.com</code><br>
+          Password: <code>Admin@123</code>
+        </p>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="register-form" class="auth-form"
+            action="../php/auth.php?action=register" method="POST"
+            novalidate>
+        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label class="form-label" for="reg-fname">First name</label>
+            <input type="text" id="reg-fname" name="first_name"
+                   class="form-control" required minlength="2" maxlength="50" placeholder="Thabo">
+            <div class="form-error" id="err-fname">Required.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-lname">Last name</label>
+            <input type="text" id="reg-lname" name="last_name"
+                   class="form-control" required minlength="2" maxlength="50" placeholder="Mokoena">
+            <div class="form-error" id="err-lname">Required.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Email address</label>
+          <input type="email" id="reg-email" name="email"
+                 class="form-control" required placeholder="you@example.com">
+          <div class="form-error" id="err-reg-email">Enter a valid email.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-phone">Phone number</label>
+          <input type="tel" id="reg-phone" name="phone"
+                 class="form-control" placeholder="0821234567">
+        </div>
+
+        <div class="form-row cols-2">
+          <div class="form-group">
+            <label class="form-label" for="reg-dob">Date of birth</label>
+            <input type="date" id="reg-dob" name="dob" class="form-control" required
+                   max="<?= date('Y-m-d') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reg-gender">Gender</label>
+            <select id="reg-gender" name="gender" class="form-control" required>
+              <option value="">Select…</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="form-error" id="err-gender">Required.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-pass">Password</label>
+          <input type="password" id="reg-pass" name="password"
+                 class="form-control" required minlength="8"
+                 placeholder="Min 8 chars, 1 uppercase, 1 number">
+          <div class="form-error" id="err-reg-pass">Password too weak.</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="reg-pass2">Confirm password</label>
+          <input type="password" id="reg-pass2" name="confirm_password"
+                 class="form-control" required placeholder="Repeat password">
+          <div class="form-error" id="err-reg-pass2">Passwords do not match.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-2">
+          <i class="ti ti-user-plus"></i> Create Account
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script src="../js/validation.js"></script>
+<script src="../js/auth.js"></script>
+</body>
+</html>

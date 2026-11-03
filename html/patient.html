@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Dashboard – HospitalMS</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body>
+
+<!-- ── NAVBAR ────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a class="navbar-brand" href="#">
+    <i class="ti ti-heart-rate-monitor"></i> HospitalMS
+  </a>
+  <div class="navbar-nav">
+    <span class="navbar-user" id="nav-user"></span>
+    <a href="../php/auth.php?action=logout">
+      <i class="ti ti-logout"></i> Logout
+    </a>
+  </div>
+</nav>
+
+<div class="dashboard">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-item active" data-section="overview">
+      <i class="ti ti-layout-dashboard"></i> Overview
+    </div>
+    <div class="sidebar-item" data-section="book">
+      <i class="ti ti-calendar-plus"></i> Book Appointment
+    </div>
+    <div class="sidebar-item" data-section="appointments">
+      <i class="ti ti-calendar"></i> My Appointments
+    </div>
+    <div class="sidebar-item" data-section="records">
+      <i class="ti ti-file-medical"></i> Medical Records
+    </div>
+    <div class="sidebar-item" data-section="profile">
+      <i class="ti ti-user"></i> My Profile
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT ────────────────────────────────────── -->
+  <main class="main-content">
+
+    <div id="flash-area"></div>
+
+    <!-- ── OVERVIEW ──────────────────────────────────────── -->
+    <section id="sec-overview">
+      <h2 style="margin-bottom:1.25rem;">Welcome back, <span id="greeting-name"></span> 👋</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="ti ti-calendar"></i></div>
+          <div>
+            <div class="stat-value" id="stat-upcoming">–</div>
+            <div class="stat-label">Upcoming appointments</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="ti ti-check"></i></div>
+          <div>
+            <div class="stat-value" id="stat-completed">–</div>
+            <div class="stat-label">Completed visits</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="ti ti-x"></i></div>
+          <div>
+            <div class="stat-value" id="stat-cancelled">–</div>
+            <div class="stat-label">Cancelled</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><i class="ti ti-file-medical"></i></div>
+          <div>
+            <div class="stat-value" id="stat-records">–</div>
+            <div class="stat-label">Medical records</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Upcoming Appointments</span>
+          <button class="btn btn-primary btn-sm" onclick="showSection('book')">
+            <i class="ti ti-plus"></i> Book new
+          </button>
+        </div>
+        <div class="table-wrapper" id="upcoming-table-wrap"></div>
+      </div>
+    </section>
+
+    <!-- ── BOOK APPOINTMENT ───────────────────────────────── -->
+    <section id="sec-book" class="d-none">
+      <h2 style="margin-bottom:1.25rem;">Book an Appointment</h2>
+
+      <div class="card" style="max-width:560px;">
+        <form id="booking-form" novalidate>
+          <input type="hidden" id="booking-csrf">
+
+          <div class="form-group">
+            <label class="form-label" for="book-doctor">Select Doctor *</label>
+            <select id="book-doctor" name="doctor_id" class="form-control" required>
+              <option value="">Loading doctors…</option>
+            </select>
+            <div class="form-error" id="err-book-doctor">Please select a doctor.</div>
+          </div>
+
+          <div class="form-row cols-2">
+            <div class="form-group">
+              <label class="form-label" for="book-date">Date *</label>
+              <input type="date" id="book-date" name="appointment_date"
+                     class="form-control" required min="">
+              <div class="form-error" id="err-book-date">Select a future date.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="book-time">Time *</label>
+              <input type="time" id="book-time" name="appointment_time"
+                     class="form-control" required min="08:00" max="17:00" step="1800">
+              <div class="form-error" id="err-book-time">Select a time (08:00–17:00).</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="book-reason">Reason for visit</label>
+            <textarea id="book-reason" name="reason" class="form-control"
+                      rows="3" maxlength="500"
+                      placeholder="Briefly describe your symptoms or reason…"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="ti ti-calendar-check"></i> Confirm Booking
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ── ALL APPOINTMENTS ───────────────────────────────── -->
+    <section id="sec-appointments" class="d-none">
+      <div class="card-header" style="margin-bottom:1rem;">
+        <h2>My Appointments</h2>
+        <button class="btn btn-primary btn-sm" onclick="showSection('book')">
+          <i class="ti ti-plus"></i> Book new
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrapper" id="all-appts-wrap"></div>
+      </div>
+    </section>
+
+    <!-- ── MEDICAL RECORDS ────────────────────────────────── -->
+    <section id="sec-records" class="d-none">
+      <h2 style="margin-bottom:1.25rem;">Medical Records</h2>
+      <div class="card">
+        <div class="table-wrapper" id="records-wrap"></div>
+      </div>
+    </section>
+
+    <!-- ── PROFILE ───────────────────────────────────────── -->
+    <section id="sec-profile" class="d-none">
+      <h2 style="margin-bottom:1.25rem;">My Profile</h2>
+      <div class="card" style="max-width:560px;">
+        <form id="profile-form" novalidate>
+          <input type="hidden" id="profile-csrf">
+          <div class="form-group">
+            <label class="form-label">Full name</label>
+            <input type="text" id="profile-name" class="form-control" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="profile-email" class="form-control" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-phone">Phone number</label>
+            <input type="tel" id="profile-phone" name="phone"
+                   class="form-control" placeholder="0821234567">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-address">Address</label>
+            <input type="text" id="profile-address" name="address"
+                   class="form-control" placeholder="12 Main Road, Durban">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-blood">Blood type</label>
+            <select id="profile-blood" name="blood_type" class="form-control">
+              <option value="">Unknown</option>
+              <option>A+</option><option>A-</option>
+              <option>B+</option><option>B-</option>
+              <option>O+</option><option>O-</option>
+              <option>AB+</option><option>AB-</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="ti ti-device-floppy"></i> Save Changes
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="../js/validation.js"></script>
+<script src="../js/patient.js"></script>
+</body>
+</html>

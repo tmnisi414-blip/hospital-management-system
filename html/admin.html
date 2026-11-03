@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – HospitalMS</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="#"><i class="ti ti-building-hospital"></i> HospitalMS Admin</a>
+  <div class="navbar-nav">
+    <span class="navbar-user" id="nav-user"></span>
+    <a href="../php/auth.php?action=logout"><i class="ti ti-logout"></i> Logout</a>
+  </div>
+</nav>
+
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="sidebar-item active" data-section="overview">
+      <i class="ti ti-layout-dashboard"></i> Overview
+    </div>
+    <div class="sidebar-item" data-section="appointments">
+      <i class="ti ti-calendar"></i> Appointments
+    </div>
+    <div class="sidebar-item" data-section="patients">
+      <i class="ti ti-users"></i> Patients
+    </div>
+    <div class="sidebar-item" data-section="users">
+      <i class="ti ti-user-cog"></i> User Management
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div id="flash-area"></div>
+
+    <!-- OVERVIEW -->
+    <section id="sec-overview">
+      <h2 style="margin-bottom:1.25rem;">System Overview</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="ti ti-calendar"></i></div>
+          <div><div class="stat-value" id="stat-total">–</div><div class="stat-label">Total appointments</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="ti ti-users"></i></div>
+          <div><div class="stat-value" id="stat-patients">–</div><div class="stat-label">Registered patients</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><i class="ti ti-stethoscope"></i></div>
+          <div><div class="stat-value" id="stat-doctors">–</div><div class="stat-label">Active doctors</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="ti ti-clock"></i></div>
+          <div><div class="stat-value" id="stat-pending">–</div><div class="stat-label">Pending appointments</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Recent Appointments</span></div>
+        <div class="table-wrapper" id="recent-appts"></div>
+      </div>
+    </section>
+
+    <!-- ALL APPOINTMENTS -->
+    <section id="sec-appointments" class="d-none">
+      <h2 style="margin-bottom:1.25rem;">All Appointments</h2>
+      <div class="card">
+        <div class="card-header">
+          <input type="search" id="appt-search" class="form-control"
+                 style="width:260px;" placeholder="Search…">
+          <select id="appt-status-filter" class="form-control" style="width:160px;">
+            <option value="">All statuses</option>
+            <option value="requested">Requested</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="table-wrapper" id="all-appts-table"></div>
+      </div>
+    </section>
+
+    <!-- PATIENTS -->
+    <section id="sec-patients" class="d-none">
+      <h2 style="margin-bottom:1.25rem;">Patient Management</h2>
+      <div class="card">
+        <div class="card-header">
+          <input type="search" id="pat-search" class="form-control"
+                 style="width:260px;" placeholder="Search patients…">
+        </div>
+        <div class="table-wrapper" id="patients-table"></div>
+      </div>
+    </section>
+
+    <!-- USER MANAGEMENT -->
+    <section id="sec-users" class="d-none">
+      <h2 style="margin-bottom:1.25rem;">User Management</h2>
+      <div class="alert alert-info">
+        <i class="ti ti-info-circle"></i>
+        Toggle active status to grant or revoke system access.
+      </div>
+      <div class="card">
+        <div class="table-wrapper" id="users-table"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="../js/validation.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>
